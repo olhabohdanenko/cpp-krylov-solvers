@@ -1,10 +1,7 @@
 #pragma once
 #include <iostream>
-#include <vector>
-#include <string.h>
-#include "SolverResult.h"
 
-using namespace std;
+#include "SolverResult.h"
 
 class Logger
 {

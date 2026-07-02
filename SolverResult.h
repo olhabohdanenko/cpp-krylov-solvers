@@ -1,9 +1,9 @@
 #pragma once
 #include <iostream>
+#include <vector>
 #include <string.h>
-#include "Vector.h"
 
-using namespace std;
+#include "Vector.h"
 
 enum class SolverStatus
 {
@@ -16,20 +16,21 @@ enum class SolverStatus
 struct SolverResult
 {
     Vector x;
+    std::vector<double> norm;
 
     SolverStatus status;
-    int iterations;
+    int iterations = 0;
 
-    double time_solve;
-    double time_precond;
+    double time_solve = 0.0;
+    double time_precond = 0.0;
 
-    double final_norm;
-    double rel_error;
+    double final_norm = 0.0;
+    double rel_error = 0.0;
 
-    long long total_flops;
-    double memory_solve_mb;
-    double memory_precond_mb;
+    long long total_flops = 0;
+    double memory_solve_mb = 0.0;
+    double memory_precond_mb = 0.0;
 
-    string method_name;
-    string preconditioner_name;
+    std::string method_name;
+    std::string preconditioner_name;
 };

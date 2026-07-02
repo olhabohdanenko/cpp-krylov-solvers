@@ -2,28 +2,41 @@
 #pragma once
 #include <iostream>
 #include <vector>
+
+#include "TrilinosTypes.h"
+
 #include <Eigen/Sparse>
 
-using namespace std;
+#include <petscmat.h>
+
+#include <Tpetra_CrsMatrix.hpp>
+#include <Tpetra_Map.hpp>
+#include <Teuchos_RCP.hpp>
 
 class Vector;
 
 class Matrix
 {
     private:
-    Eigen::SparseMatrix<double> mat;
+    Eigen::SparseMatrix<double, Eigen::RowMajor, PetscInt> mat;
     public:
 
     Matrix (int rows, int cols);
 
-    void setFromTriplets (const vector<Eigen::Triplet<double>>& triplets);
+    void setFromTriplets (const std::vector<Eigen::Triplet<double>>& triplets);
+    
+    bool loadFromMtx(const std::string& filepath);
 
     Vector operator* (const Vector& v) const;
 
     int rows () const { return static_cast<int>(mat.rows()); }
     int cols () const { return static_cast<int>(mat.cols()); }
 
-    const Eigen::SparseMatrix<double>& get_sparse_mat () const { return mat; }
+    const Eigen::SparseMatrix<double, Eigen::RowMajor, PetscInt>& get_sparse_mat () const { return mat; }
+
+	Mat createPetscMat () const;
+	Teuchos::RCP<TpetraMatrix> createTpetraMat() const;
+	Matrix transpose () const;
 
     void print () const;
 };

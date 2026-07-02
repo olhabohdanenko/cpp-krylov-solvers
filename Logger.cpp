@@ -2,33 +2,32 @@
 #include <vector>
 #include <string.h>
 #include <iomanip>
+
 #include "SolverResult.h"
 #include "Logger.h"
 
-using namespace std;
-
 void Logger::printHeader ()
 {
-    cout << left
-        << setw(10) << "Method"
-        << setw(15) << "Precond"
-        << setw(10) << "Status"
-        << setw(10) << "Iter"
-        << setw(12) << "Time solve"
-        << setw(12) << "Time precond"
-        << setw(14) << "Memory solve"
-        << setw(14) << "Memory precond"
-        << setw(10) << "Norm"
-        << setw(10) << "Rel_error" << "\n";
+	std::cout << std::left 
+          << std::setw(10) << "Method"
+          << std::setw(16) << "Precond"
+          << std::setw(12) << "Status"
+          << std::setw(8)  << "Iter"
+          << std::setw(14) << "Time solve"
+          << std::setw(14) << "Time prec"
+          << std::setw(15) << "Memory solve"
+          << std::setw(15) << "Memory prec"
+          << std::setw(14) << "Norm"
+          << std::setw(14) << "Rel_error" << std::endl;
 }
 
 void Logger::log (const SolverResult& res)
 {
-    string status_str;
+    std::string status_str;
     switch (res.status)
     {
         case SolverStatus::Success:
-            status_str = "OK";
+            status_str = "Success";
             break;
         case SolverStatus::MaxIterReached:
             status_str = "MaxIter";
@@ -37,18 +36,18 @@ void Logger::log (const SolverResult& res)
             status_str = "Diverged";
             break;
         default:
-            status_str = "Fail";
+            status_str = "Failed";
             break;
     }
-    cout << left
-        << setw(10) << res.method_name
-        << setw(15) << res.preconditioner_name
-        << setw(10) << status_str
-        << setw(10) << res.iterations
-        << setw(12) << res.time_solve
-        << setw(12) << res.time_precond
-        << setw(14) << res.memory_solve_mb
-        << setw(14) << res.memory_precond_mb
-        << setw(10) << res.final_norm
-        << setw(10) << res.rel_error << "\n";
+    std::cout << std::left << std::scientific << std::setprecision(5)
+          << std::setw(10) << res.method_name
+          << std::setw(16) << res.preconditioner_name
+          << std::setw(12) << status_str
+          << std::setw(8)  << res.iterations
+          << std::setw(14) << res.time_solve
+          << std::setw(14) << res.time_precond
+          << std::setw(15) << res.memory_solve_mb
+          << std::setw(15) << res.memory_precond_mb
+          << std::setw(14) << res.final_norm
+          << std::setw(14) << res.rel_error << std::endl;
 }

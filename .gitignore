@@ -1,5 +1,6 @@
 # Build
 build/
+matrices/
 build-*/
 *.o
 *.obj
@@ -11,6 +12,15 @@ build-*/
 
 # CMake
 CMakeCache.txt
+TodoList.txt
+
+Scalar.cpp
+Scalar.h
+
+spack.lock
+spack.yaml
+.spack-env/
+
 CMakeFiles/
 CMakeScripts/
 Testing/
@@ -32,3 +42,4 @@ Thumbs.db
 # Python
 __pycache__/
 *.pyc
+
