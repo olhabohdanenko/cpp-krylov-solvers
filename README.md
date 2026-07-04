@@ -75,6 +75,10 @@ BiCG      T Schwarz(ilut) Failed      13      3.46366e+00   5.63107e-01   4.5875
 
 ---
 
+<img width="2951" height="1754" alt="convergence_BiCG" src="https://github.com/user-attachments/assets/1a1af87e-74f8-49b9-947f-729b44489aa9" />
+
+---
+
 ## Швидкий старт & Збірка
 
 Для збірки проєкту на Linux/використовується менеджер пакетів **Spack** та **CMake**.
