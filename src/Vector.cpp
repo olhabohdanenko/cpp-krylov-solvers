@@ -18,15 +18,15 @@ Vector::Vector (const Eigen::VectorXd& vvec) : vec(vvec) {}
 
 double& Vector::operator[] (int i)
 {
-    return vec(i);
+	return vec(i);
 }
 const double& Vector::operator[] (int i) const
 {
-    return vec(i);
+	return vec(i);
 }
 int Vector::size () const
 {
-    return vec.size();
+	return vec.size();
 }
 
 Vector Vector::fromTpetraVec(const Teuchos::RCP<TpetraVector>& tpetra_vec)
@@ -43,39 +43,48 @@ Vector Vector::fromTpetraVec(const Teuchos::RCP<TpetraVector>& tpetra_vec)
 
 Vector Vector::operator+ (const Vector& other) const
 {
-    return Vector(vec + other.vec);
+	return Vector(vec + other.vec);
 }
 Vector Vector::operator- (const Vector& other) const
 {
-    return Vector(vec - other.vec);
+	return Vector(vec - other.vec);
 }
 
 Vector Vector::operator* (double scalar) const
 {
-    return Vector (vec * scalar);
+	return Vector (vec * scalar);
 }
 Vector operator* (double scalar, const Vector& vec_)
 {
-    return vec_ * scalar;
+	return vec_ * scalar;
+}
+
+Vector Vector::operator/ (double scalar) const
+{
+	return Vector (vec / scalar);
+}
+Vector operator/ (double scalar, const Vector& vec_)
+{
+	return vec_ / scalar;
 }
 
 Vector& Vector::operator+= (const Vector& other)
 {
-    vec += other.vec; return *this;
+	vec += other.vec; return *this;
 }
 Vector& Vector::operator-= (const Vector& other)
 {
-    vec -= other.vec; return *this;
+	vec -= other.vec; return *this;
 }
 
 double Vector::dot (const Vector& other) const
 {
-    return vec.dot(other.vec);
+	return vec.dot(other.vec);
 }
 
 double Vector::norm () const
 {
-    return vec.norm();
+	return vec.norm();
 }
 
 bool Vector::IsFinite() const
@@ -105,10 +114,8 @@ Vec Vector::createPetscVecFromVector()
 
 Teuchos::RCP<TpetraVector> Vector::createTpetraVec() const
 {
-	//auto comm = Teuchos::rcp(new Teuchos::MpiComm<int>(MPI_COMM_SELF));
 	auto comm = Tpetra::getDefaultComm();
 
-	//auto map = Tpetra::createContigMapWithNode<LocalOrdinal, GlobalOrdinal, Node>(static_cast<GlobalOrdinal>(this->size()), 0, comm);
 	auto map = Teuchos::rcp(new Tpetra::Map<LocalOrdinal, GlobalOrdinal, Node>(static_cast<Tpetra::global_size_t>(this->size()), static_cast<size_t>(this->size()), 0, comm));
 
 	auto tpetra_vec = Teuchos::rcp(new TpetraVector(map));

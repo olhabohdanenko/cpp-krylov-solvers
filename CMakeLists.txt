@@ -16,17 +16,24 @@ find_package(Kokkos REQUIRED)
 find_package(PkgConfig REQUIRED)
 pkg_check_modules(PETSC REQUIRED IMPORTED_TARGET petsc)
 
+set(PRECOND_SOURCES
+    src/Preconditioners/CustomPreconditioner.cpp
+    src/Preconditioners/PetscPreconditioner.cpp
+    src/Preconditioners/TrilinosPreconditioner.cpp
+)
+
 add_executable(SLAE_S 
     main.cpp
-    Scalar.cpp
-    Vector.cpp
-    Matrix.cpp
-    Preconditioner.cpp
-    Solvers.cpp
-    Logger.cpp
+    src/Vector.cpp
+    src/Matrix.cpp
+    src/Solvers.cpp
+    src/Logger.cpp
+    src/MemoryTracker.cpp
+    ${PRECOND_SOURCES}
 )
 
 target_include_directories(SLAE_S PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${EIGEN3_INCLUDE_DIR}
     ${Trilinos_INCLUDE_DIRS}
     ${MPI_CXX_INCLUDE_PATH}

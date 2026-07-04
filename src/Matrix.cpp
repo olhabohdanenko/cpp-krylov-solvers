@@ -14,8 +14,8 @@ Matrix::Matrix ( int rows, int cols) : mat(rows, cols) {}
 
 void Matrix::setFromTriplets (const std::vector<Eigen::Triplet<double>>& triplets)
 {
-    mat.setFromTriplets(triplets.begin(), triplets.end());
-    mat.makeCompressed();
+	mat.setFromTriplets(triplets.begin(), triplets.end());
+	mat.makeCompressed();
 }
 
 bool Matrix::loadFromMtx(const std::string& filepath)
@@ -73,7 +73,7 @@ bool Matrix::loadFromMtx(const std::string& filepath)
 
 Vector Matrix::operator* (const Vector& v) const
 {
-    return Vector(mat * v.get_Eigen_vec());
+	return Vector(mat * v.get_Eigen_vec());
 }
 
 Mat Matrix::createPetscMat() const
@@ -85,52 +85,47 @@ Mat Matrix::createPetscMat() const
 
 Teuchos::RCP<TpetraMatrix> Matrix::createTpetraMat() const
 {
-    auto comm = Tpetra::getDefaultComm();
+	auto comm = Tpetra::getDefaultComm();
 
-    auto map = Teuchos::rcp(new Tpetra::Map<LocalOrdinal, GlobalOrdinal, Node>(
-        static_cast<Tpetra::global_size_t>(mat.rows()),
-        static_cast<size_t>(mat.rows()), 0, comm));
+	auto map = Teuchos::rcp(new Tpetra::Map<LocalOrdinal, GlobalOrdinal, Node>(
+		static_cast<Tpetra::global_size_t>(mat.rows()),
+		static_cast<size_t>(mat.rows()), 0, comm));
 
-    // Підрахунок кількості ненульових елементів у кожному рядку
-    Teuchos::Array<size_t> numEntriesPerRow(mat.rows(), 0);
-    for (int k = 0; k < mat.outerSize(); ++k)
-        for (decltype(mat)::InnerIterator it(mat, k); it; ++it)
-            numEntriesPerRow[it.row()]++;
+	Teuchos::Array<size_t> numEntriesPerRow(mat.rows(), 0);
+	for (int k = 0; k < mat.outerSize(); ++k)
+		for (decltype(mat)::InnerIterator it(mat, k); it; ++it)
+			numEntriesPerRow[it.row()]++;
 
-    // Створення матриці – передаємо масив (без дужок!)
-    auto tpetra_mat = Teuchos::rcp(new TpetraMatrix(map, numEntriesPerRow));
+	auto tpetra_mat = Teuchos::rcp(new TpetraMatrix(map, numEntriesPerRow));
 
-    // Вставка елементів
-    for (int k = 0; k < mat.outerSize(); ++k)
-    {
-        for (decltype(mat)::InnerIterator it(mat, k); it; ++it)
-        {
-            GlobalOrdinal row = static_cast<GlobalOrdinal>(it.row());
-            GlobalOrdinal col = static_cast<GlobalOrdinal>(it.col());
-            double val = it.value();
+	for (int k = 0; k < mat.outerSize(); ++k)
+	{
+		for (decltype(mat)::InnerIterator it(mat, k); it; ++it)
+		{
+			GlobalOrdinal row = static_cast<GlobalOrdinal>(it.row());
+			GlobalOrdinal col = static_cast<GlobalOrdinal>(it.col());
+			double val = it.value();
 
-            // Оголошуємо масиви з одним елементом
-            Teuchos::Array<GlobalOrdinal> cols = {col};
-            Teuchos::Array<double> vals = {val};
+			Teuchos::Array<GlobalOrdinal> cols = {col};
+			Teuchos::Array<double> vals = {val};
 
-            // Вставляємо – без зайвих дужок після cols/vals!
-            tpetra_mat->insertGlobalValues(row, cols, vals);
-        }
-    }
-    tpetra_mat->fillComplete();
-    return tpetra_mat;
+			tpetra_mat->insertGlobalValues(row, cols, vals);
+		}
+	}
+	tpetra_mat->fillComplete();
+	return tpetra_mat;
 }
 
 Matrix Matrix::transpose() const
 {
 	Matrix T(mat.rows(), mat.cols());
-	
+
 	T.mat = mat.transpose();
-	
+
 	return T;
 }
 
 void Matrix::print () const
 {
-    std::cout << Eigen::MatrixXd(mat) << std::endl;
+	std::cout << Eigen::MatrixXd(mat) << std::endl;
 }

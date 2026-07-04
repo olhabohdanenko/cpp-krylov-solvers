@@ -10,7 +10,6 @@
 using Scalar = double;
 using LocalOrdinal = Tpetra::Map<>::local_ordinal_type;
 using GlobalOrdinal = Tpetra::Map<>::global_ordinal_type;
-using Node = Tpetra::Map<>::node_type;
 
 using Node = Tpetra::Details::DefaultTypes::node_type;
 
