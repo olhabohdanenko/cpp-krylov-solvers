@@ -6,7 +6,7 @@
 
 ---
 
-## 🌟 Особливості та Можливості
+## Особливості та Можливості
 
 *   **Мультиплатформенна інтеграція:** Робота з матрицями через власні обгортки `Vector` та `Matrix` над **Eigen3**, з експортом у структури PETSc та Tpetra (Trilinos).
 *   **Профілювання:** Моніторинг пікового та поточного споживання RAM (`MemoryTracker`) для оцінки overhead кожного прекондиціонера та метода.
@@ -56,7 +56,7 @@
 ---
 
 ## Приклад виводу
-
+```text
 rows: 81920 cols: 81920
 compute matrices patch ../matrices/shallow_water1.mtx
 Method    Precond         Status      Iter    Time solve    Time prec     Memory solve   Memory prec    Norm          Rel_error     
@@ -71,6 +71,7 @@ BiCG      P ICC           Failed      13      2.87808e+00   1.89920e-02   6.5536
 BiCG      T ILU(k)        Failed      8       2.10539e+00   6.04738e-01   0.00000e+00    8.84736e+05    8.56969e-03   2.21277e-16   
 BiCG      T Chebyshev     Failed      45      1.13542e+01   4.05294e-01   1.31072e+05    1.01581e+06    1.66323e-03   3.49073e-16   
 BiCG      T Schwarz(ilut) Failed      13      3.46366e+00   5.63107e-01   4.58752e+05    3.68640e+05    1.71521e-03   2.26798e-16
+```
 
 ---
 
