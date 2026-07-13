@@ -1,3 +1,4 @@
+// SolverResult.h
 #pragma once
 #include <iostream>
 #include <vector>

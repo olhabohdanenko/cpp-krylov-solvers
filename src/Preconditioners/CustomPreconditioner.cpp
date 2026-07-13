@@ -1,9 +1,11 @@
+// CustomPreconditioner.cpp
 #include <iostream>
 #include <Eigen/Sparse>
 
 #include "Preconditioners/CustomPreconditioner.h"
 #include "Matrix.h"
 #include "Vector.h"
+
 // Jacobi
 JacobiPreconditioner::JacobiPreconditioner(const Matrix& A)
 {
@@ -68,7 +70,8 @@ SORPreconditioner::SORPreconditioner(const Matrix& A, double omega) : omega(omeg
 	for (int i = 0; i < rows; i++)
 	{
 		double d_ii = A_sparse.coeff(i, i);
-		if (std::abs(d_ii) < 1e-14) d_ii = 1e-14;
+		if (std::abs(d_ii) < 1e-14)
+			d_ii = 1e-14;
 
 		M_.coeffRef(i, i) = d_ii / omega;
 	}
@@ -111,7 +114,8 @@ SSORPreconditioner::SSORPreconditioner(const Matrix& A, double omega) : omega(om
 	for (int i = 0; i < rows; i++)
 	{
 		double d_ii = A_sparse.coeff(i, i) + 1e-4;
-		if (std::abs(d_ii) < 1e-14) d_ii = 1e-14;
+		if (std::abs(d_ii) < 1e-14)
+			d_ii = 1e-14;
 
 		M_lower.coeffRef(i, i) = d_ii / omega;
 		M_upper.coeffRef(i, i) = d_ii / omega;

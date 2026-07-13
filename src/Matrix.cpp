@@ -1,3 +1,4 @@
+// Matrix.cpp
 #include "TrilinosTypes.h"
 
 #include "Matrix.h"
@@ -87,31 +88,19 @@ Teuchos::RCP<TpetraMatrix> Matrix::createTpetraMat() const
 {
 	auto comm = Tpetra::getDefaultComm();
 
-	auto map = Teuchos::rcp(new Tpetra::Map<LocalOrdinal, GlobalOrdinal, Node>(
-		static_cast<Tpetra::global_size_t>(mat.rows()),
-		static_cast<size_t>(mat.rows()), 0, comm));
+	auto rowMap = Teuchos::rcp(new Tpetra::Map<LocalOrdinal, GlobalOrdinal, Node>(static_cast<Tpetra::global_size_t>(this->rows()), static_cast<size_t>(this->rows()), 0, comm));
 
-	Teuchos::Array<size_t> numEntriesPerRow(mat.rows(), 0);
-	for (int k = 0; k < mat.outerSize(); ++k)
-		for (decltype(mat)::InnerIterator it(mat, k); it; ++it)
-			numEntriesPerRow[it.row()]++;
+	auto colMap = rowMap; 
 
-	auto tpetra_mat = Teuchos::rcp(new TpetraMatrix(map, numEntriesPerRow));
+	Teuchos::ArrayRCP<size_t> rowPointers(this->rows() + 1);
+	const PetscInt* eigenRowPtr = mat.outerIndexPtr();
+	for (int i = 0; i <= this->rows(); i++) 
+		rowPointers[i] = static_cast<size_t>(eigenRowPtr[i]);
 
-	for (int k = 0; k < mat.outerSize(); ++k)
-	{
-		for (decltype(mat)::InnerIterator it(mat, k); it; ++it)
-		{
-			GlobalOrdinal row = static_cast<GlobalOrdinal>(it.row());
-			GlobalOrdinal col = static_cast<GlobalOrdinal>(it.col());
-			double val = it.value();
+	Teuchos::ArrayRCP<LocalOrdinal> columnIndices(const_cast<LocalOrdinal*>(reinterpret_cast<const LocalOrdinal*>(mat.innerIndexPtr())), 0, mat.nonZeros(), false);
+	Teuchos::ArrayRCP<Scalar> values(const_cast<Scalar*>(mat.valuePtr()), 0, mat.nonZeros(), false);
+	auto tpetra_mat = Teuchos::rcp(new TpetraMatrix(rowMap, colMap, rowPointers, columnIndices, values, Teuchos::null));
 
-			Teuchos::Array<GlobalOrdinal> cols = {col};
-			Teuchos::Array<double> vals = {val};
-
-			tpetra_mat->insertGlobalValues(row, cols, vals);
-		}
-	}
 	tpetra_mat->fillComplete();
 	return tpetra_mat;
 }

@@ -14,11 +14,7 @@ build-*/
 CMakeCache.txt
 TodoList.txt
 
-Scalar.cpp
-Scalar.h
-
 spack.lock
-spack.yaml
 .spack-env/
 
 CMakeFiles/
@@ -43,3 +39,11 @@ Thumbs.db
 __pycache__/
 *.pyc
 
+**/*.json
+**/*.pdf
+**/*.jpeg
+**/*.jpg
+**/*.png
+
+*.log
+**/*.dat

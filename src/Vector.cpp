@@ -1,3 +1,4 @@
+// Vector.cpp
 #include <cmath>
 
 #include "TrilinosTypes.h"
@@ -117,11 +118,8 @@ Teuchos::RCP<TpetraVector> Vector::createTpetraVec() const
 	auto comm = Tpetra::getDefaultComm();
 
 	auto map = Teuchos::rcp(new Tpetra::Map<LocalOrdinal, GlobalOrdinal, Node>(static_cast<Tpetra::global_size_t>(this->size()), static_cast<size_t>(this->size()), 0, comm));
+	Teuchos::ArrayView<const Scalar> valuesView(this->data(), this->size());
+	auto tpetra_vec = Teuchos::rcp(new TpetraVector(map, valuesView)); 
 
-	auto tpetra_vec = Teuchos::rcp(new TpetraVector(map));
-
-	auto vec_data = tpetra_vec->getDataNonConst();
-	for (int i = 0; i < this->size(); i++)
-		vec_data[i] = (*this)[i];
 	return tpetra_vec;
 }

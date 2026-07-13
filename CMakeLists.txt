@@ -22,14 +22,20 @@ set(PRECOND_SOURCES
     src/Preconditioners/TrilinosPreconditioner.cpp
 )
 
+set(SOLVERS_SOURCES
+    src/Solvers/CustomSolver.cpp
+    src/Solvers/PetscSolver.cpp
+    src/Solvers/TrilinosSolver.cpp
+)
+
 add_executable(SLAE_S 
     main.cpp
     src/Vector.cpp
     src/Matrix.cpp
-    src/Solvers.cpp
     src/Logger.cpp
     src/MemoryTracker.cpp
     ${PRECOND_SOURCES}
+    ${SOLVERS_SOURCES}
 )
 
 target_include_directories(SLAE_S PRIVATE

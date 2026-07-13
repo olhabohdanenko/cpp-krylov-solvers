@@ -1,3 +1,4 @@
+// TrilinosPreconditioner.cpp
 #include <iostream>
 
 #include "TrilinosTypes.h"
@@ -17,16 +18,16 @@
 TrilinosPreconditioner::TrilinosPreconditioner(const Matrix& A)
 {
 	A_trilinos = A.createTpetraMat();
+	tpetra_work_out = Teuchos::rcp(new TpetraVector(A_trilinos->getMap()));
 }
 
 Vector TrilinosPreconditioner::apply(const Vector& x) const
 {
-	auto tpetra_x = x.createTpetraVec(); 
-	auto tpetra_y = Teuchos::rcp(new TpetraVector(tpetra_x->getMap()));
-
-	prec->apply(*tpetra_x, *tpetra_y);
-
-	return Vector::fromTpetraVec(tpetra_y); 
+	Teuchos::ArrayView<const Scalar> x_view(x.data(), x.size());
+	TpetraVector tpetra_x(A_trilinos->getMap(), x_view);
+	
+	prec->apply(tpetra_x, *tpetra_work_out);
+	return Vector::fromTpetraVec(tpetra_work_out);
 }
 
 Vector TrilinosPreconditioner::matvec(const Vector& v) const
@@ -117,7 +118,7 @@ TrilinosSchwarzPreconditioner::TrilinosSchwarzPreconditioner(const Matrix& A, co
 	auto A_const = Teuchos::rcp_const_cast<const TpetraMatrix>(A_trilinos);
 	prec = Ifpack2::Factory::create<TpetraMatrix>("SCHWARZ", A_const);
 
-	params.set("schwarz: inner preconditioner name", inner_prec_type); // тип локального сольвера для піддоменів
+	params.set("schwarz: inner preconditioner name", inner_prec_type);
 
 	prec->setParameters(params);
 	prec->initialize();

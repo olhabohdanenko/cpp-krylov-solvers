@@ -1,3 +1,4 @@
+// Logger.h
 #pragma once
 #include <iostream>
 #include <fstream>
@@ -12,6 +13,4 @@ public:
 	static void log (const SolverResult& res);
 	
 	static void saveToJson(const SolverResult& res, const std::string& filename);
-	
-	static void finalizeJson(const std::string& filename);
 };

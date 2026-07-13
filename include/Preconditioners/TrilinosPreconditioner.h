@@ -1,3 +1,4 @@
+// TrilinosPreconditioner.h
 #pragma once
 #include <iostream>
 
@@ -20,12 +21,16 @@ protected:
 	Teuchos::RCP<TpetraMatrix> A_trilinos;
 	Teuchos::RCP<Ifpack2::Preconditioner<Scalar, LocalOrdinal, GlobalOrdinal, Node>> prec;
 	Teuchos::ParameterList params;
+	
+	mutable Teuchos::RCP<TpetraVector> tpetra_work_out;
 
 public:
 	explicit TrilinosPreconditioner(const Matrix& A);
 	virtual ~TrilinosPreconditioner() = default;
+	Teuchos::RCP<Tpetra::Operator<Scalar, LocalOrdinal, GlobalOrdinal, Node>> getTpetraOp() const { return prec; }
 
 	Vector apply(const Vector& x) const override;
+	
 	Vector matvec(const Vector& v) const override;
 	Vector rmatvec(const Vector& v) const override;
 };

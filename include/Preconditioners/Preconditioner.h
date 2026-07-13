@@ -1,3 +1,4 @@
+// Preconditioner.h
 #pragma once
 #include <iostream>
 
@@ -17,7 +18,7 @@ public:
 
 class NoPreconditioner : public Preconditioner
 {
-	public:
+public:
 	Vector apply (const Vector& x) const override { return x; }
 	Vector matvec (const Vector& v) const override { return v; }
 	Vector rmatvec (const Vector& v) const override { return v; }

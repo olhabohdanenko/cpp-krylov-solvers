@@ -35,16 +35,16 @@ for method_name, runs in methods_data.items():
 	filename_png = f"convergence_{method_name}.png"
 	plt.savefig(filename_pdf, format="pdf", bbox_inches='tight')
 	plt.savefig(filename_png, dpi=300, bbox_inches='tight')
-	print(f"📊 Графік для {method_name} збережено в '{filename_pdf}'")
+	print(f"Графік для {method_name} збережено в '{filename_pdf}'")
 
 	#plt.show()
 
-print("\n" + "="*85)
-print(f"{'Метод та прекондиціонер':<30} | {'Ітер.':<5} | {'Час солвера':<12} | {'Час прек.':<10} | {'Пам’ять (МБ)':<12}")
-print("="*85)
+print("\n" + "="*93)
+print(f"{'Метод та прекондиціонер':<35} | {'Ітер.':<5} | {'Час солвера':<12} | {'Час прек.':<10} | {'Пам’ять (байт)':<15}")
+print("="*93)
 for run in data:
 	name = f"{run['method']} ({run['preconditioner']})"
-	mem_total = run['memory_solve_mb'] + run['memory_precond_mb']
+	mem_total = run['memory_solve_b'] + run['memory_precond_b']
 	mem_str = f"{mem_total:,.2f}" if mem_total > 0 else "-"
-	print(f"{name:<30} | {run['iterations']:<5} | {run['time_solve']:<12.4f} | {run['time_precond']:<10.4f} | {mem_str:<12}")
-print("="*85)
+	print(f"{name:<35} | {run['iterations']:<5} | {run['time_solve']:<12.4f} | {run['time_precond']:<10.4f} | {mem_str:<15}")
+print("="*93)

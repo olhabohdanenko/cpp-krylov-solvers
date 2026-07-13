@@ -1,3 +1,4 @@
+// PetscPreconditioner.h
 #pragma once
 #include <iostream>
 
@@ -21,8 +22,8 @@ protected:
 	
 public:
 	PetscPreconditioner (const Matrix& A);
-
 	virtual ~PetscPreconditioner();
+	PC getPetscPC() const { return pc; }
 
 	Vector apply (const Vector& x) const override;
 

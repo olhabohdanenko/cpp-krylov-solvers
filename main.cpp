@@ -1,3 +1,4 @@
+// main.cpp
 #include <iostream>
 #include <random>
 #include <functional>
@@ -13,7 +14,9 @@
 #include "Preconditioners/PetscPreconditioner.h"
 #include "Preconditioners/TrilinosPreconditioner.h"
 
-#include "Solvers.h"
+#include "Solvers/CustomSolver.h"
+#include "Solvers/PetscSolver.h"
+#include "Solvers/TrilinosSolver.h"
 
 #include "Logger.h"
 #include "MemoryTracker.h"
@@ -54,7 +57,7 @@ int main(int argc, char* argv[])
 		}
 		
 		int n = A.rows();
-		double eps = 1e-3;
+		double eps = 1e-14;
 		
 		int overlap = 1;
 		int degree = 2;
@@ -93,12 +96,27 @@ int main(int argc, char* argv[])
 			{"T Schwarz(ilut)", [](const Matrix& mat) { return make_unique<TrilinosSchwarzPreconditioner>(mat); }}
 		};
 		
+		CustomSolver custom_backend;
+		PetscSolver petsc_backend;
+		TrilinosSolver trilinos_backend;
+		
 		vector<SolverDef> solver_definitions =
 		{
-			{"CG",       [](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return Solvers::solveCG(mat, vec_b, prec, dim, tol); }},
-			{"BiCG",     [](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return Solvers::solveBiCG(mat, vec_b, prec, dim, tol); }},
-			{"BiCGSTAB", [](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return Solvers::solveBiCGSTAB(mat, vec_b, prec, dim, tol); }},
-			{"GMRES",    [m](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return Solvers::solveGMRES(mat, vec_b, prec, dim, m, tol); }}
+			{"Custom_CG",       [&](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return custom_backend.CG(mat, vec_b, prec, dim, tol); }},
+			{"Custom_BiCG",     [&](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return custom_backend.BiCG(mat, vec_b, prec, dim, tol); }},
+			{"Custom_BiCGSTAB", [&](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return custom_backend.BiCGSTAB(mat, vec_b, prec, dim, tol); }},
+			{"Custom_GMRES", [&, m](auto& mat, auto& vec_b, auto& prec, int max_iter, double tol) { return custom_backend.GMRES(mat, vec_b, prec, max_iter, m, tol); }},
+
+			{"Petsc_CG",        [&](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return petsc_backend.solve("cg", mat, vec_b, prec, {}, dim, tol); }},
+			{"Petsc_BiCG",      [&](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return petsc_backend.solve("bicg", mat, vec_b, prec, {}, dim, tol); }},
+			{"Petsc_BiCGSTAB",  [&](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return petsc_backend.solve("bcgs", mat, vec_b, prec, {}, dim, tol); }},
+			{"Petsc_GMRES",     [&, m](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return petsc_backend.solve("gmres", mat, vec_b, prec, {{"-ksp_gmres_restart", to_string(m)}}, dim, tol); }},
+			{"Petsc_PipeFGMRES", [&](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return petsc_backend.solve("pipefgmres", mat, vec_b, prec, {}, dim, tol); }},
+
+			{"Trilinos_CG",       [&](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return trilinos_backend.solve("Block CG", mat, vec_b, prec, {}, dim, tol); }},
+			{"Trilinos_BiCGSTAB", [&](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return trilinos_backend.solve("BiCGStab", mat, vec_b, prec, {}, dim, tol); }},
+			{"Trilinos_TFQMR",    [&](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return trilinos_backend.solve("tfqmr", mat, vec_b, prec, {}, dim, tol); }},
+			{"Trilinos_GMRES",    [&, m](auto& mat, auto& vec_b, auto& prec, int dim, double tol) { return trilinos_backend.solve("Block Gmres", mat, vec_b, prec, {{"restart", to_string(m)}}, dim, tol); }}
 		};
 		
 		cout << "compute matrices patch " << path << endl;
@@ -148,8 +166,6 @@ int main(int argc, char* argv[])
 				Logger::saveToJson(res, json_file);
 			}
 		}
-		
-		Logger::finalizeJson(json_file);
 	}
 	PetscFinalize();
 

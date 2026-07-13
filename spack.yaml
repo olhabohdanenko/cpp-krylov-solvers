@@ -1,0 +1,14 @@
+# This is a Spack Environment file.
+#
+# It describes a set of packages to be installed, along with
+# configuration settings.
+spack:
+  specs:
+  - trilinos
+  - petsc
+  - eigen
+  - openmpi
+  - kokkos
+  view: true
+  concretizer:
+    unify: true

@@ -28,7 +28,7 @@ public:
 	int size () const;
 
 	double* data () { return vec.data(); }
-	const double* data () const {return vec.data(); }
+	const double* data () const { return vec.data(); }
 
 	const Eigen::VectorXd& get_Eigen_vec () const { return vec; }
 	Eigen::VectorXd& get_Eigen_vec_nonconst () { return vec; }

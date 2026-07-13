@@ -1,3 +1,4 @@
+// CustomSolver.cpp
 #include <iostream>
 #include <chrono>
 #include <memory>
@@ -8,12 +9,12 @@
 #include "Matrix.h"
 #include "Preconditioners/Preconditioner.h"
 #include "SolverResult.h"
-#include "Solvers.h"
+#include "Solvers/CustomSolver.h"
 
-SolverResult Solvers::solveCG (const Matrix& A, const Vector& b, const Preconditioner& M, int max_iter, double tol)
+SolverResult CustomSolver::CG (const Matrix& A, const Vector& b, const Preconditioner& M, int max_iter, double tol)
 {
 	SolverResult res;
-	res.method_name = "CG";
+	res.method_name = "C CG";
 	res.preconditioner_name = "Custom";
 	res.status = SolverStatus::MaxIterReached;
 
@@ -60,7 +61,7 @@ SolverResult Solvers::solveCG (const Matrix& A, const Vector& b, const Precondit
 		res.iterations = i + 1;
 		rho_old = rho_new;
 
-		if (r_norm < tol)
+		if (r_norm / b.norm() < tol)
 		{
 			res.status = SolverStatus::Success;
 			break;
@@ -82,10 +83,10 @@ SolverResult Solvers::solveCG (const Matrix& A, const Vector& b, const Precondit
 	return res;
 }
 
-SolverResult Solvers::solveBiCG (const Matrix& A, const Vector& b, const Preconditioner& M, int max_iter, double tol)
+SolverResult CustomSolver::BiCG (const Matrix& A, const Vector& b, const Preconditioner& M, int max_iter, double tol)
 {
 	SolverResult res;
-	res.method_name = "BiCG";
+	res.method_name = "C BiCG";
 	res.preconditioner_name = "Custom";
 	res.status = SolverStatus::MaxIterReached;
 
@@ -149,7 +150,7 @@ SolverResult Solvers::solveBiCG (const Matrix& A, const Vector& b, const Precond
 		res.iterations = i + 1;
 		rho_old = rho_new;
 
-		if (r_norm < tol)
+		if (r_norm / b.norm() < tol)
 		{
 			res.status = SolverStatus::Success;
 			break;
@@ -171,10 +172,10 @@ SolverResult Solvers::solveBiCG (const Matrix& A, const Vector& b, const Precond
 	return res;
 }
 
-SolverResult Solvers::solveBiCGSTAB (const Matrix& A, const Vector& b, const Preconditioner& M, int max_iter, double tol)
+SolverResult CustomSolver::BiCGSTAB (const Matrix& A, const Vector& b, const Preconditioner& M, int max_iter, double tol)
 {
 	SolverResult res;
-	res.method_name = "BiCGSTAB";
+	res.method_name = "C BiCGSTAB";
 	res.preconditioner_name = "Custom";
 	res.status = SolverStatus::MaxIterReached;
 
@@ -230,7 +231,7 @@ SolverResult Solvers::solveBiCGSTAB (const Matrix& A, const Vector& b, const Pre
 		
 		double s_norm = s.norm();
 
-		if (s_norm < tol)
+		if (s_norm / b.norm() < tol)
 		{
 			x += alpha * p_;
 			res.norm.push_back(s_norm);
@@ -265,7 +266,7 @@ SolverResult Solvers::solveBiCGSTAB (const Matrix& A, const Vector& b, const Pre
 		res.norm.push_back(r_norm);
 		res.iterations = i + 1;
 		
-		if (r_norm < tol)
+		if (r_norm / b.norm() < tol)
 		{
 			res.status = SolverStatus::Success;
 			break;
@@ -281,7 +282,7 @@ SolverResult Solvers::solveBiCGSTAB (const Matrix& A, const Vector& b, const Pre
 	return res;
 }
 
-Vector Solvers::SOL(const std::vector<Vector>& V, const std::vector<std::vector<double>>& R, const Vector& b_, const Vector& x, int nr)
+Vector CustomSolver::SOL(const std::vector<Vector>& V, const std::vector<std::vector<double>>& R, const Vector& b_, const Vector& x, int nr)
 {
 	Vector x_new = x;
 	Vector y(nr);
@@ -303,10 +304,10 @@ Vector Solvers::SOL(const std::vector<Vector>& V, const std::vector<std::vector<
 	return x_new;
 }
 
-SolverResult Solvers::solveGMRES(const Matrix& A, const Vector& b, const Preconditioner& M, int max_iter, int m, double tol)
+SolverResult CustomSolver::GMRES(const Matrix& A, const Vector& b, const Preconditioner& M, int max_iter, int m, double tol)
 {
 	SolverResult res;
-	res.method_name = "GMRES";
+	res.method_name = "C GMRES(m)";
 	res.preconditioner_name = "Custom";
 	res.status = SolverStatus::MaxIterReached;
 
@@ -317,6 +318,7 @@ SolverResult Solvers::solveGMRES(const Matrix& A, const Vector& b, const Precond
 
 	Vector x(n);
 	Vector delta_x(n);
+	Vector init_x(n);
 
 	std::vector<std::vector<double>> H(m + 1, std::vector<double>(m, 0.0));
 	std::vector<std::vector<double>> R(m, std::vector<double>(m, 0.0));
@@ -332,6 +334,7 @@ SolverResult Solvers::solveGMRES(const Matrix& A, const Vector& b, const Precond
 	Vector r = b - (A * x);
 
 	double r_norm = r.norm();
+	double b_norm = b.norm();
 	res.norm.push_back(r_norm);
 
 	Vector w(n);
@@ -339,6 +342,7 @@ SolverResult Solvers::solveGMRES(const Matrix& A, const Vector& b, const Precond
 
 	int i;
 	int nr = m;
+	int iter = 0;
 
 	for (i = 0; i < max_iter; i++)
 	{
@@ -382,12 +386,11 @@ SolverResult Solvers::solveGMRES(const Matrix& A, const Vector& b, const Precond
 			b_[j] = c[j] * b_[j];
 			
 			double rho = std::abs(b_[j + 1]);
+			iter++;
 			
-			i++;
-			if (rho < tol)
+			if (rho / b_norm < tol)
 			{
 				nr = j + 1;
-				Vector init_x(n);
 				delta_x = SOL(V, R, b_, init_x, nr);
 				inner_converged = true;
 				break;
@@ -397,7 +400,6 @@ SolverResult Solvers::solveGMRES(const Matrix& A, const Vector& b, const Precond
 		if (!inner_converged)
 		{
 			nr = m;
-			Vector init_x(n);
 			delta_x = SOL(V, R, b_, init_x, nr);
 		}
 		
@@ -406,9 +408,9 @@ SolverResult Solvers::solveGMRES(const Matrix& A, const Vector& b, const Precond
 		r = b - (A * x);
 		r_norm = r.norm();
 		res.norm.push_back(r_norm);
-		res.iterations = i + 1;
+		res.iterations = iter;
 		
-		if (r_norm < tol)
+		if (r_norm / b_norm < tol)
 		{
 			res.status = SolverStatus::Success;
 			break;
@@ -422,3 +424,4 @@ SolverResult Solvers::solveGMRES(const Matrix& A, const Vector& b, const Precond
 
 	return res;
 }
+
