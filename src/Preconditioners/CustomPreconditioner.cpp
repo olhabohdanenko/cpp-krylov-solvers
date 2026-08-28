@@ -113,7 +113,7 @@ SSORPreconditioner::SSORPreconditioner(const Matrix& A, double omega) : omega(om
 
 	for (int i = 0; i < rows; i++)
 	{
-		double d_ii = A_sparse.coeff(i, i) + 1e-4;
+		double d_ii = A_sparse.coeff(i, i);
 		if (std::abs(d_ii) < 1e-14)
 			d_ii = 1e-14;
 
@@ -128,7 +128,8 @@ SSORPreconditioner::SSORPreconditioner(const Matrix& A, double omega) : omega(om
 Vector SSORPreconditioner::apply(const Vector& x) const
 {
 	Eigen::VectorXd y = M_lower.triangularView<Eigen::Lower>().solve(x.get_Eigen_vec());
-	Eigen::VectorXd z = M_upper.triangularView<Eigen::Upper>().solve(y);
+	Eigen::VectorXd y_scaled = (2.0 - omega) / omega * (D_diag.array() * y.array()).matrix();
+	Eigen::VectorXd z = M_upper.triangularView<Eigen::Upper>().solve(y_scaled);
 	return Vector(z);
 }
 
