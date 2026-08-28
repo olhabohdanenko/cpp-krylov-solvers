@@ -30,7 +30,7 @@ Vector JacobiPreconditioner::matvec(const Vector& v) const
 
 Vector JacobiPreconditioner::rmatvec(const Vector& v) const
 {
-	return Vector(inv_diag.get_Eigen_vec().array().inverse() * v.get_Eigen_vec().array());
+	return Vector(inv_diag.get_Eigen_vec().array() * v.get_Eigen_vec().array());
 }
 
 
